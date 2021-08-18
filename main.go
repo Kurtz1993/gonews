@@ -35,4 +35,10 @@ func main() {
 	xml.Unmarshal(bytes, &s)
 
 	fmt.Println(s.Locations)
+
+	// This works similar to a for-of loop. The "_" will be the index
+	// location represents the value
+	for _, location := range(s.Locations) {
+		fmt.Printf("\n%s", location)
+	}
 }
