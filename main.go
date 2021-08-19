@@ -5,8 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 	"text/template"
+	"time"
 )
+
+var wg sync.WaitGroup
 
 type SitemapIndex struct {
 	// Locations property of type slice of Location which is inside the xml <sitemap> > <loc> tag
@@ -56,8 +60,22 @@ func newsAggHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(t.Execute(w, p))
 }
 
-func main() {
-	http.HandleFunc("/", newsAggHandler)
+func say(s string) {
+	for i := 0; i < 3; i++ {
+		fmt.Println(s)
+		time.Sleep(time.Millisecond * 100)
+	}
 
-	http.ListenAndServe(":5000", nil)
+	wg.Done()
+}
+
+func main() {
+	//http.HandleFunc("/", newsAggHandler)
+
+	// http.ListenAndServe(":5000", nil)
+	wg.Add(1)
+	go say("Hey")
+	wg.Add(1)
+	go say("There")
+	wg.Wait()
 }
