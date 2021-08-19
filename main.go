@@ -65,7 +65,7 @@ func say(s string) {
 		fmt.Println(s)
 		time.Sleep(time.Millisecond * 100)
 	}
-
+	// Used to notify the wait group that this routine is done
 	wg.Done()
 }
 
@@ -73,9 +73,13 @@ func main() {
 	//http.HandleFunc("/", newsAggHandler)
 
 	// http.ListenAndServe(":5000", nil)
+
+	// Add 1 to the wait group before runing our goroutine
 	wg.Add(1)
 	go say("Hey")
 	wg.Add(1)
 	go say("There")
+
+	// Wait until all goroutines are done
 	wg.Wait()
 }
