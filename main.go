@@ -8,37 +8,37 @@ import (
 )
 
 type SitemapIndex struct {
-	// Locations property of type list of Location which is inside the xml <sitemap> tag
-	Locations	[]Location	`xml:"sitemap"`
+	// Locations property of type slice of Location which is inside the xml <sitemap> > <loc> tag
+	Locations []string `xml:"sitemap>loc"`
 }
 
-type Location struct {
-	// Loc property of type string which is inside the xml <loc> tag
-	Loc	string	`xml:"loc"`
-	// LastModified property of type string which is inside the xml <lastmod> tag
-	LastModified	string	`xml:"lastmod"`
-}
-
-func (l Location) String() string {
-	return fmt.Sprintf(l.Loc)
+type News struct {
+	Titles []string `xml:"url>news>title"`
+	Keywords []string `xml:"url>news>keywords"`
+	Locations []string `xml:"url>loc"`
 }
 
 func main() {
-	response, _ := http.Get("https://www.nytimes.com/sitemaps/new/cooking.xml.gz")
+	var s SitemapIndex
+	var n News
+
+	response, _ := http.Get("https://www.nytimes.com/sitemaps/new/news.xml.gz")
 	bytes, _ := io.ReadAll(response.Body)
 	response.Body.Close()
-
-	var s SitemapIndex
 
 	// Parses the bytes from the XML response to the specified type
 	// of the s variable
 	xml.Unmarshal(bytes, &s)
 
-	fmt.Println(s.Locations)
-
 	// This works similar to a for-of loop. The "_" will be the index
 	// location represents the value
-	for _, location := range(s.Locations) {
-		fmt.Printf("\n%s", location)
+	for _, location := range s.Locations {
+		response, _ := http.Get(location)
+		bytes, _ := io.ReadAll(response.Body)
+		response.Body.Close()
+
+		xml.Unmarshal(bytes, &n)
+
+		fmt.Println(n.Locations)
 	}
 }
