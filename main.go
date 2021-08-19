@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"text/template"
 )
 
 type SitemapIndex struct {
@@ -23,7 +24,12 @@ type NewsMap struct {
 	Location string
 }
 
-func main() {
+type NewsAggPage struct {
+	Title string
+	News  map[string]NewsMap
+}
+
+func newsAggHandler(w http.ResponseWriter, r *http.Request) {
 	var n News
 	newsMap := make(map[string]NewsMap)
 
@@ -43,11 +49,15 @@ func main() {
 			Location: n.Locations[idx],
 		}
 	}
-	// }
 
-	for idx, data := range newsMap {
-		fmt.Println("\n\n\n", "Title:", idx)
-		fmt.Println("\n", "Keyword:", data.Keyword)
-		fmt.Println("\n", "Location:", data.Location)
-	}
+	p := NewsAggPage{Title: "Amazing News Aggregator", News: newsMap}
+	t, _ := template.ParseFiles("news.gohtml")
+
+	fmt.Println(t.Execute(w, p))
+}
+
+func main() {
+	http.HandleFunc("/", newsAggHandler)
+
+	http.ListenAndServe(":5000", nil)
 }
